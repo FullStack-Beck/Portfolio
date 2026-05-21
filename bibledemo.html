@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scripture — Bible Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cinzel:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF8F2;
+    --bg2: #F3EFE6;
+    --text: #1C1A17;
+    --text-muted: #7A7060;
+    --red: #C0392B;
+    --accent: #8B6914;
+    --border: #D9D0BE;
+    --panel-bg: #FEFCF8;
+    --shadow: 0 2px 20px rgba(0,0,0,0.08);
+  }
+  .dark {
+    --bg: #161412;
+    --bg2: #1F1D1A;
+    --text: #EDE8DF;
+    --text-muted: #8A8070;
+    --red: #E05A4A;
+    --accent: #C49A30;
+    --border: #2E2B26;
+    --panel-bg: #1C1A17;
+  }
+  .sepia {
+    --bg: #F5EFE0;
+    --bg2: #EDE5CB;
+    --text: #3D2B1F;
+    --text-muted: #8A7060;
+    --red: #A0302B;
+    --accent: #7A5010;
+    --border: #D0C4A8;
+    --panel-bg: #F9F3E2;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0E0C0A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  /* ── Portfolio wrapper ── */
+  .portfolio-wrapper { max-width: 1100px; width: 100%; }
+  .portfolio-header { text-align: center; margin-bottom: 40px; color: #FBF8F2; }
+  .portfolio-header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(28px,5vw,48px);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+  .portfolio-header p { font-size: 15px; color: #9A9080; font-weight: 300; letter-spacing: 0.02em; }
+  .badge-row { display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
+  .badge {
+    background: #1E1C18; border: 1px solid #2E2B26; color: #9A9080;
+    font-size: 11px; padding: 5px 12px; border-radius: 20px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  /* ── Phone frame ── */
+  .phone-scene { display:flex; gap:32px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+  .phone-frame {
+    width: 360px; height: 740px;
+    background: #0A0907;
+    border-radius: 44px;
+    padding: 12px;
+    box-shadow: 0 0 0 1px #2A2720, 0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 #3A3530;
+    position: relative; flex-shrink: 0;
+  }
+  .phone-screen {
+    width: 100%; height: 100%;
+    border-radius: 34px;
+    overflow: hidden;
+    background: var(--bg);
+    position: relative;
+    transition: background 0.3s;
+  }
+  .phone-frame::before {
+    content: '';
+    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+    width: 100px; height: 28px;
+    background: #0A0907;
+    border-radius: 0 0 16px 16px;
+    z-index: 100;
+  }
+
+  /* ── App layout ── */
+  .app {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    background: var(--bg); color: var(--text);
+    position: relative; overflow: hidden;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── Top bar ── */
+  .top-bar {
+    display: flex; align-items: center;
+    padding: 44px 14px 10px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+    transition: transform 0.26s ease, background 0.3s;
+    z-index: 10; flex-shrink: 0;
+  }
+  .top-bar.hidden { transform: translateY(-100%); }
+
+  .menu-btn {
+    width: 34px; height: 34px;
+    border: none; background: none; cursor: pointer;
+    color: var(--text); display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; flex-shrink: 0;
+  }
+  .menu-btn svg { width: 18px; height: 18px; }
+  .menu-btn:hover { background: var(--bg2); }
+
+  .top-bar-title {
+    flex: 1; font-family: 'Cinzel', serif;
+    font-size: 13px; font-weight: 400;
+    color: var(--text-muted); text-align: center;
+    letter-spacing: 0.04em;
+  }
+
+  .icon-btn {
+    width: 34px; height: 34px;
+    border: none; background: none; cursor: pointer;
+    color: var(--text); display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; flex-shrink: 0;
+  }
+  .icon-btn:hover { background: var(--bg2); }
+  .icon-btn svg { width: 18px; height: 18px; }
+
+  .version-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 9px;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .version-btn:hover { background: var(--bg2); }
+
+  /* ── Chapter content ── */
+  .chapter-scroll {
+    flex: 1; overflow-y: auto;
+    padding: 20px 20px 120px;
+    scroll-behavior: smooth;
+  }
+  .chapter-scroll::-webkit-scrollbar { width: 3px; }
+  .chapter-scroll::-webkit-scrollbar-track { background: transparent; }
+  .chapter-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .chapter-header { text-align: center; margin-bottom: 24px; }
+  .chapter-book-name {
+    font-family: 'Cinzel', serif;
+    font-size: 12px; font-weight: 400;
+    letter-spacing: 0.14em; color: var(--text-muted);
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .chapter-number {
+    font-family: 'EB Garamond', serif;
+    font-size: 72px; font-weight: 500;
+    color: var(--text); line-height: 1;
+  }
+
+  .chapter-text {
+    font-family: 'EB Garamond', serif;
+    font-size: 18px; line-height: 1.85; color: var(--text);
+  }
+
+  .verse {
+    cursor: pointer; border-radius: 3px;
+    transition: background 0.15s;
+    padding: 1px 2px; margin: -1px -2px;
+  }
+  .verse:hover { background: var(--bg2); }
+  .verse.selected {
+    background: rgba(139,105,20,0.12);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 2px;
+  }
+  .verse.hl-yellow { background: rgba(255,220,80,0.35); }
+  .verse.hl-blue   { background: rgba(80,140,255,0.25); }
+  .verse.hl-green  { background: rgba(80,200,120,0.25); }
+  .verse.hl-orange { background: rgba(255,140,60,0.28); }
+  .verse.hl-purple { background: rgba(160,80,255,0.22); }
+
+  .verse-num {
+    font-size: 10px; vertical-align: super;
+    color: var(--accent); margin-right: 2px;
+    line-height: 0; font-family: 'DM Sans', sans-serif; font-weight: 500;
+  }
+  .red-letter { color: var(--red); }
+  .italic-text { font-style: italic; }
+
+  /* ── Bottom chrome (action bar + nav bar stacked) ── */
+  .bottom-chrome {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; flex-direction: column;
+    transition: transform 0.26s ease;
+    z-index: 10;
+  }
+  .bottom-chrome.hidden { transform: translateY(100%); }
+
+  /* ── Action panel — slim bar, sits above nav ── */
+  .action-panel {
+    background: var(--panel-bg);
+    border-top: 1px solid var(--border);
+    padding: 8px 14px 6px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.22s cubic-bezier(0.4,0,0.2,1), padding 0.22s;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.07);
+  }
+  .action-panel.open { max-height: 80px; padding: 8px 14px 6px; }
+
+  .action-ref {
+    font-size: 10px; color: var(--text-muted);
+    margin-bottom: 6px;
+    font-family: 'Cinzel', serif; letter-spacing: 0.06em;
+  }
+  .action-buttons { display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto; }
+  .action-buttons::-webkit-scrollbar { display:none; }
+  .action-btn {
+    font-family: 'DM Sans', sans-serif; font-size: 11px;
+    padding: 5px 11px; border-radius: 20px;
+    border: 1px solid var(--border);
+    background: none; color: var(--text);
+    cursor: pointer; transition: background 0.15s;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .action-btn:hover { background: var(--bg2); }
+
+  /* ── Bottom nav bar ── */
+  .bottom-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 16px 20px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    transition: background 0.3s;
+  }
+
+  .nav-btn {
+    display: flex; align-items: center; gap: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: var(--text-muted);
+    background: none; border: none; cursor: pointer;
+    padding: 6px 10px; border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-btn:hover { background: var(--bg2); color: var(--text); }
+  .nav-btn svg { width: 16px; height: 16px; }
+
+  /* Play button placeholder in center */
+  .play-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .play-btn:hover { background: var(--bg2); color: var(--text); }
+  .play-btn svg { width: 13px; height: 13px; margin-left: 2px; }
+
+  /* ── Drawer ── */
+  .drawer-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 30; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+  .drawer {
+    position: absolute; top: 0; left: 0; bottom: 0;
+    width: 82%; background: var(--bg);
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    display: flex; flex-direction: column;
+    border-right: 1px solid var(--border);
+  }
+  .drawer.open { transform: translateX(0); }
+
+  .drawer-header {
+    padding: 50px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .drawer-header-title {
+    flex: 1;
+    font-family: 'Cinzel', serif;
+    font-size: 12px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .drawer-back {
+    background: none; border: none; cursor: pointer;
+    color: var(--accent); font-size: 18px;
+    display: none; padding: 2px 6px;
+  }
+
+  .drawer-list { flex: 1; overflow-y: auto; }
+  .drawer-list::-webkit-scrollbar { width: 3px; }
+  .drawer-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .book-item {
+    padding: 13px 16px;
+    font-family: 'EB Garamond', serif;
+    font-size: 17px; color: var(--text);
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .book-item:hover { background: var(--bg2); }
+  .book-item.active { color: var(--accent); }
+  .book-chevron { font-size: 12px; color: var(--text-muted); transition: transform 0.2s; }
+
+  .chapter-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    padding: 10px 14px 14px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+  .ch-btn {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer;
+    background: var(--bg); transition: background 0.12s, color 0.12s;
+  }
+  .ch-btn:hover, .ch-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* Verse list in drawer */
+  .verse-list-item {
+    padding: 10px 16px;
+    font-family: 'EB Garamond', serif;
+    font-size: 15px; color: var(--text);
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+    display: flex; gap: 10px; align-items: baseline;
+  }
+  .verse-list-item:hover { background: var(--bg2); }
+  .verse-list-num {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px; color: var(--accent);
+    font-weight: 500; flex-shrink: 0; padding-top: 2px;
+  }
+
+  /* ── Search overlay ── */
+  .search-overlay {
+    position: absolute; inset: 0;
+    background: var(--bg); z-index: 50;
+    display: flex; flex-direction: column;
+    transform: translateY(-100%);
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  .search-overlay.open { transform: translateY(0); }
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 50px 14px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-input {
+    flex: 1; background: var(--bg2);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 9px 14px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--text); outline: none;
+  }
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-cancel {
+    background: none; border: none; cursor: pointer;
+    color: var(--accent); font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .search-results { flex: 1; overflow-y: auto; }
+  .search-result {
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.12s;
+  }
+  .search-result:hover { background: var(--bg2); }
+  .search-result-ref {
+    font-family: 'Cinzel', serif; font-size: 11px;
+    letter-spacing: 0.06em; color: var(--accent); margin-bottom: 4px;
+  }
+  .search-result-text {
+    font-family: 'EB Garamond', serif; font-size: 15px;
+    color: var(--text); line-height: 1.5;
+  }
+  .search-highlight { background: rgba(139,105,20,0.25); border-radius: 2px; }
+
+  /* ── Highlight sheet (bottom sheet) ── */
+  .highlight-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 60;
+    display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.22s;
+  }
+  .highlight-overlay.open { opacity: 1; pointer-events: all; }
+  .highlight-sheet {
+    width: 100%; background: var(--panel-bg);
+    border-radius: 20px 20px 0 0;
+    padding: 16px 20px 36px;
+    transform: translateY(100%);
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  .highlight-overlay.open .highlight-sheet { transform: translateY(0); }
+  .sheet-handle {
+    width: 36px; height: 4px;
+    background: var(--border);
+    border-radius: 2px; margin: 0 auto 14px;
+  }
+  .sheet-title {
+    font-family: 'Cinzel', serif; font-size: 12px;
+    letter-spacing: 0.08em; color: var(--text-muted);
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  .group-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 4px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.12s;
+    border-radius: 4px;
+  }
+  .group-row:hover { background: var(--bg2); }
+  .group-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%; flex-shrink: 0;
+    pointer-events: none;
+  }
+  .group-name {
+    flex: 1; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--text);
+  }
+  .group-check { color: var(--accent); font-size: 15px; min-width: 16px; }
+
+  /* add new group row */
+  .add-group-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; cursor: pointer;
+    color: var(--text-muted); font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    transition: color 0.15s;
+  }
+  .add-group-row:hover { color: var(--accent); }
+  .add-group-plus {
+    width: 28px; height: 28px;
+    border: 1px dashed var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+
+  /* ── Settings / Font screen ── */
+  .settings-overlay {
+    position: absolute; inset: 0;
+    background: var(--bg); z-index: 50;
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+    display: flex; flex-direction: column;
+  }
+  .settings-overlay.open { transform: translateX(0); }
+  .settings-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 50px 14px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .settings-back {
+    background: none; border: none; cursor: pointer;
+    color: var(--text); font-size: 20px; padding: 2px;
+  }
+  .settings-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px; letter-spacing: 0.06em; color: var(--text);
+  }
+
+  /* preview pane inside settings */
+  .settings-preview {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    flex-shrink: 0;
+  }
+  .preview-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .preview-text {
+    font-family: 'EB Garamond', serif;
+    font-size: 18px; line-height: 1.75; color: var(--text);
+  }
+  .preview-text .pv-num {
+    font-size: 10px; vertical-align: super;
+    color: var(--accent); font-family: 'DM Sans', sans-serif;
+  }
+  .preview-text .pv-red { color: var(--red); }
+
+  /* scrollable settings body */
+  .settings-body { flex: 1; overflow-y: auto; }
+  .settings-section {
+    padding: 14px 20px 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-label { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); }
+  .settings-value { font-size: 13px; color: var(--text-muted); }
+  .toggle {
+    width: 44px; height: 26px;
+    background: var(--border);
+    border-radius: 13px; position: relative;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: ''; position: absolute;
+    top: 3px; left: 3px;
+    width: 20px; height: 20px;
+    background: white; border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .toggle.on::after { transform: translateX(18px); }
+
+  .theme-chips { display:flex; gap:8px; flex-wrap:wrap; padding: 0 20px 12px; }
+  .theme-chip {
+    padding: 6px 14px; border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 12px; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; transition: all 0.15s; color: var(--text);
+  }
+  .theme-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .font-size-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px; border-bottom: 1px solid var(--border);
+  }
+  .font-adj {
+    width: 32px; height: 32px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: none; cursor: pointer;
+    color: var(--text); font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.12s;
+  }
+  .font-adj:hover { background: var(--bg2); }
+  .font-size-display {
+    flex: 1; text-align: center;
+    font-family: 'EB Garamond', serif; font-size: 17px; color: var(--text);
+  }
+
+  /* Font selector row */
+  .font-selector-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 20px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.12s;
+  }
+  .font-selector-row:hover { background: var(--bg2); }
+  .font-selector-chevron { color: var(--text-muted); font-size: 14px; }
+
+  /* Version row at bottom of settings */
+  .version-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.12s;
+  }
+  .version-row:hover { background: var(--bg2); }
+
+  /* Font picker sheet */
+  .font-picker-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 70; display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.22s;
+  }
+  .font-picker-overlay.open { opacity: 1; pointer-events: all; }
+  .font-picker-sheet {
+    width: 100%; background: var(--panel-bg);
+    border-radius: 20px 20px 0 0;
+    padding: 16px 20px 32px;
+    transform: translateY(100%);
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  .font-picker-overlay.open .font-picker-sheet { transform: translateY(0); }
+  .font-option {
+    padding: 12px 4px; border-bottom: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.12s;
+  }
+  .font-option:hover { background: var(--bg2); border-radius: 4px; }
+  .font-option.selected { color: var(--accent); }
+  .font-option-check { color: var(--accent); font-size: 16px; }
+
+  /* ── Feature panels ── */
+  .feature-panel {
+    color: #EDE8DF; display: flex; flex-direction: column;
+    gap: 10px; max-width: 280px;
+  }
+  .feature-panel h2 {
+    font-family: 'Cinzel', serif; font-size: 15px;
+    letter-spacing: 0.08em; color: #C49A30; margin-bottom: 4px;
+  }
+  .feature-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 12px;
+    background: #1A1816; border: 1px solid #2A2720;
+    border-radius: 10px; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .feature-item:hover, .feature-item.active {
+    border-color: #C49A30; background: #1F1D18;
+  }
+  .feature-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .feature-label { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: #EDE8DF; margin-bottom: 2px; }
+  .feature-desc { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #6A6050; line-height: 1.4; }
+  .feature-item.active .feature-label { color: #C49A30; }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed; bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1C1A17; color: #EDE8DF;
+    padding: 10px 20px; border-radius: 20px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    opacity: 0; transition: all 0.25s; pointer-events: none;
+    z-index: 999; white-space: nowrap;
+  }
+
+  @media (max-width: 800px) {
+    .feature-panel { display: none; }
+    .phone-scene { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="portfolio-wrapper">
+  <div class="portfolio-header">
+    <h1>Scripture</h1>
+    <p>Android Bible Reader — Interactive Demo</p>
+    <div class="badge-row">
+      <span class="badge">Kotlin</span>
+      <span class="badge">Android</span>
+      <span class="badge">SQLite</span>
+      <span class="badge">28 Versions</span>
+      <span class="badge">Custom Highlights</span>
+      <span class="badge">Notes</span>
+    </div>
+  </div>
+
+  <div class="phone-scene">
+
+    <!-- Left feature panel -->
+    <div class="feature-panel">
+      <h2>Features</h2>
+      <div class="feature-item active" onclick="triggerDemo('drawer')" id="f-drawer">
+        <span class="feature-icon">📖</span>
+        <div class="feature-text">
+          <div class="feature-label">Book Navigation</div>
+          <div class="feature-desc">Slide-out drawer — Books → Chapters → Verses with lines and accent coloring</div>
+        </div>
+      </div>
+      <div class="feature-item" onclick="triggerDemo('search')" id="f-search">
+        <span class="feature-icon">🔍</span>
+        <div class="feature-text">
+          <div class="feature-label">Full-Text Search</div>
+          <div class="feature-desc">Search across all 31,000+ verses instantly</div>
+        </div>
+      </div>
+      <div class="feature-item" onclick="triggerDemo('highlight')" id="f-highlight">
+        <span class="feature-icon">✏️</span>
+        <div class="feature-text">
+          <div class="feature-label">Highlight Groups</div>
+          <div class="feature-desc">Named groups, no color circles — tap to add/remove</div>
+        </div>
+      </div>
+      <div class="feature-item" onclick="triggerDemo('settings')" id="f-settings">
+        <span class="feature-icon">⚙️</span>
+        <div class="feature-text">
+          <div class="feature-label">Typography & Theme</div>
+          <div class="feature-desc">Live preview, font picker, themes, version at bottom</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phone -->
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="app" id="app">
+
+          <!-- Top bar -->
+          <div class="top-bar" id="topBar">
+            <!-- Hamburger SVG icon -->
+            <button class="menu-btn" onclick="openDrawer()" title="Navigation">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="3" y1="7" x2="21" y2="7"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="17" x2="21" y2="17"/>
+              </svg>
+            </button>
+
+            <div class="top-bar-title" id="topBarTitle">John · 1</div>
+
+            <!-- Notes icon -->
+            <button class="icon-btn" onclick="showToast('Notes library')" title="Notes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="9" y1="13" x2="15" y2="13"/>
+                <line x1="9" y1="17" x2="13" y2="17"/>
+              </svg>
+            </button>
+
+            <!-- Search icon -->
+            <button class="icon-btn" onclick="openSearch()" title="Search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </button>
+
+            <!-- Settings icon -->
+            <button class="icon-btn" onclick="openSettings()" title="Settings">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </button>
+
+            <!-- Version button -->
+            <button class="version-btn" onclick="cycleVersion()" id="versionBtn">KJV</button>
+          </div>
+
+          <!-- Chapter content -->
+          <div class="chapter-scroll" id="chapterScroll">
+            <div class="chapter-header">
+              <div class="chapter-book-name" id="bookLabel">John</div>
+              <div class="chapter-number" id="chapterNum">1</div>
+            </div>
+            <div class="chapter-text" id="chapterText"></div>
+          </div>
+
+          <!-- Bottom chrome: action bar + nav bar, stacked -->
+          <div class="bottom-chrome" id="bottomChrome">
+            <!-- Slim action bar (slides open above nav) -->
+            <div class="action-panel" id="actionPanel">
+              <div class="action-ref" id="actionRef"></div>
+              <div class="action-buttons">
+                <button class="action-btn" onclick="openHighlight()">✦ Highlight</button>
+                <button class="action-btn" onclick="showToast('Notes')">📝 Notes</button>
+                <button class="action-btn" onclick="copyVerse()">⎘ Copy</button>
+                <button class="action-btn" onclick="showToast('Shared!')">↗ Share</button>
+                <button class="action-btn" onclick="showToast('Compare — coming soon')">⇄ Compare</button>
+              </div>
+            </div>
+
+            <!-- Nav bar -->
+            <div class="bottom-bar" id="bottomBar">
+              <button class="nav-btn" onclick="prevChapter()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Prev
+              </button>
+              <button class="play-btn" onclick="showToast('Audio reading — coming soon')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </button>
+              <button class="nav-btn" onclick="nextChapter()">
+                Next
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Drawer -->
+          <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+          <div class="drawer" id="drawer">
+            <div class="drawer-header">
+              <button class="drawer-back" id="drawerBack" onclick="drawerGoBack()">‹</button>
+              <span class="drawer-header-title" id="drawerTitle">Books</span>
+            </div>
+            <div class="drawer-list" id="drawerList"></div>
+          </div>
+
+          <!-- Search overlay -->
+          <div class="search-overlay" id="searchOverlay">
+            <div class="search-bar">
+              <input class="search-input" id="searchInput" placeholder="Search the Bible…" oninput="doSearch(this.value)">
+              <button class="search-cancel" onclick="closeSearch()">Cancel</button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+          </div>
+
+          <!-- Highlight bottom sheet -->
+          <div class="highlight-overlay" id="highlightOverlay" onclick="closeHighlight(event)">
+            <div class="highlight-sheet">
+              <div class="sheet-handle"></div>
+              <div class="sheet-title">Add to Group</div>
+              <div id="groupList"></div>
+              <div class="add-group-row" onclick="showToast('Create new group…')">
+                <div class="add-group-plus">+</div>
+                <span>New highlight group</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Font / settings overlay -->
+          <div class="settings-overlay" id="settingsOverlay">
+            <div class="settings-header">
+              <button class="settings-back" onclick="closeSettings()">←</button>
+              <div class="settings-title">Appearance</div>
+            </div>
+
+            <!-- Live preview -->
+            <div class="settings-preview">
+              <div class="preview-label">Preview</div>
+              <div class="preview-text" id="settingsPreview">
+                <span class="pv-num">1</span> In the beginning was the Word, and the Word was with God, and the Word was God. <span class="pv-num">4</span> In him was life; and <span class="pv-red">the life was the light</span> of men.
+              </div>
+            </div>
+
+            <div class="settings-body">
+              <div class="settings-section">Theme</div>
+              <div class="theme-chips">
+                <div class="theme-chip active" id="chip-light" onclick="setTheme('light')">Light</div>
+                <div class="theme-chip" id="chip-dark" onclick="setTheme('dark')">Dark</div>
+                <div class="theme-chip" id="chip-sepia" onclick="setTheme('sepia')">Sepia</div>
+              </div>
+
+              <div class="settings-section">Font Size</div>
+              <div class="font-size-row">
+                <button class="font-adj" onclick="adjustFont(-1)">−</button>
+                <div class="font-size-display" id="fontSizeDisplay">18px</div>
+                <button class="font-adj" onclick="adjustFont(1)">+</button>
+              </div>
+
+              <div class="settings-section">Typeface</div>
+              <div class="font-selector-row" onclick="openFontPicker()">
+                <span class="settings-label" id="currentFontLabel">EB Garamond</span>
+                <span class="font-selector-chevron">›</span>
+              </div>
+
+              <div class="settings-section">Display</div>
+              <div class="settings-row">
+                <span class="settings-label">Paragraph Mode</span>
+                <div class="toggle on" id="paraToggleSetting" onclick="toggleParagraphMode()"></div>
+              </div>
+              <div class="settings-row">
+                <span class="settings-label">Red Letters</span>
+                <div class="toggle on" id="redLetterToggle" onclick="toggleRedLetters()"></div>
+              </div>
+
+              <div class="settings-section">Bible Version</div>
+              <div class="version-row" onclick="cycleVersion()">
+                <span class="settings-label">Current Version</span>
+                <span class="settings-value" id="versionLabel">King James Version</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Font picker sheet -->
+          <div class="font-picker-overlay" id="fontPickerOverlay" onclick="closeFontPicker(event)">
+            <div class="font-picker-sheet">
+              <div class="sheet-handle"></div>
+              <div class="sheet-title">Choose Typeface</div>
+              <div id="fontOptionList"></div>
+            </div>
+          </div>
+
+        </div><!-- end .app -->
+      </div>
+    </div><!-- end phone-frame -->
+
+    <!-- Right panel -->
+    <div class="feature-panel">
+      <h2>Architecture</h2>
+      <div class="feature-item">
+        <span class="feature-icon">🗄️</span>
+        <div class="feature-text">
+          <div class="feature-label">Dual Repository</div>
+          <div class="feature-desc">JSON for KJV, SQLite for all other versions — same BibleRepository interface</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🎨</span>
+        <div class="feature-text">
+          <div class="feature-label">SpannableStringBuilder</div>
+          <div class="feature-desc">Red letters, superscript verse nums, italic supplements — all in one pass</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">💾</span>
+        <div class="feature-text">
+          <div class="feature-label">Highlight Database</div>
+          <div class="feature-desc">Named groups, colors, notes — persisted per verse with cascade delete</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🔋</span>
+        <div class="feature-text">
+          <div class="feature-label">Scroll-Aware UI</div>
+          <div class="feature-desc">Threshold-gated bar hide/show with 5 s auto-hide on reveal</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- phone-scene -->
+</div><!-- portfolio-wrapper -->
+
+<div id="toast"></div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const VERSES = {
+  "John": {
+    1: [
+      {v:1,  t:"In the beginning was the Word, and the Word was with God, and the Word was God."},
+      {v:2,  t:"The same was in the beginning with God."},
+      {v:3,  t:"All things were made by him; and without him was not any thing made that was made."},
+      {v:4,  t:"In him was life; and the life was the light of men."},
+      {v:5,  t:"And the light shineth in darkness; and the darkness comprehended it not."},
+      {v:6,  t:"There was a man sent from God, whose name was John."},
+      {v:7,  t:"The same came for a witness, to bear witness of the Light, that all men through him might believe."},
+      {v:8,  t:"He was not that Light, but was sent to bear witness of that Light."},
+      {v:9,  t:"That was the true Light, which lighteth every man that cometh into the world."},
+      {v:10, t:"He was in the world, and the world was made by him, and the world knew him not."},
+      {v:11, t:"He came unto his own, and his own received him not."},
+      {v:12, t:"But as many as received him, to them gave he power to become the sons of God, even to them that believe on his name:"},
+      {v:13, t:"Which were born, not of blood, nor of the will of the flesh, nor of the will of man, but of God."},
+      {v:14, t:"And the Word was made flesh, and dwelt among us, (and we beheld his glory, the glory as of the only begotten of the Father,) full of grace and truth."},
+      {v:15, t:"John bare witness of him, and cried, saying, This was he of whom I spake, He that cometh after me is preferred before me: for he was before me."},
+      {v:16, t:"And of his fulness have all we received, and grace for grace."},
+      {v:17, t:"For the law was given by Moses, but grace and truth came by Jesus Christ."},
+    ],
+    2: [
+      {v:1, t:"And the third day there was a marriage in Cana of Galilee; and the mother of Jesus was there:"},
+      {v:2, t:"And both Jesus was called, and his disciples, to the marriage."},
+      {v:3, t:"And when they wanted wine, the mother of Jesus saith unto him, They have no wine."},
+      {v:4, t:"Jesus saith unto her, Woman, what have I to do with thee? mine hour is not yet come.", red:true},
+      {v:5, t:"His mother saith unto the servants, Whatsoever he saith unto you, do it."},
+      {v:6, t:"And there were set there six waterpots of stone, after the manner of the purifying of the Jews, containing two or three firkins apiece."},
+      {v:7, t:"Jesus saith unto them, Fill the waterpots with water. And they filled them up to the brim.", red:true},
+      {v:8, t:"And he saith unto them, Draw out now, and bear unto the governor of the feast. And they bare it.", red:true},
+    ]
+  },
+  "Genesis": {
+    1: [
+      {v:1, t:"In the beginning God created the heaven and the earth."},
+      {v:2, t:"And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters."},
+      {v:3, t:"And God said, Let there be light: and there was light.", red:true},
+      {v:4, t:"And God saw the light, that it was good: and God divided the light from the darkness."},
+      {v:5, t:"And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.", red:true},
+      {v:6, t:"And God said, Let there be a firmament in the midst of the waters, and let it divide the waters from the waters.", red:true},
+    ]
+  },
+  "Psalms": {
+    23: [
+      {v:1, t:"The LORD is my shepherd; I shall not want."},
+      {v:2, t:"He maketh me to lie down in green pastures: he leadeth me beside the still waters."},
+      {v:3, t:"He restoreth my soul: he leadeth me in the paths of righteousness for his name's sake."},
+      {v:4, t:"Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me."},
+      {v:5, t:"Thou preparest a table before me in the presence of mine enemies: thou anointest my head with oil; my cup runneth over."},
+      {v:6, t:"Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever."},
+    ]
+  }
+};
+
+const SEARCH_CORPUS = [];
+Object.entries(VERSES).forEach(([book, chapters]) => {
+  Object.entries(chapters).forEach(([ch, vs]) => {
+    vs.forEach(v => SEARCH_CORPUS.push({book, ch:parseInt(ch), v:v.v, text:v.t}));
+  });
+});
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentBook    = "John";
+let currentChapter = 1;
+let selectedVerses = new Set();
+let highlights     = {}; // "book-ch-v" -> colorClass
+let paragraphMode  = true;
+let redLetters     = true;
+let fontSize       = 18;
+let drawerState    = 'books';
+let drawerBook     = null;
+let drawerChapter  = null;
+let versionIdx     = 0;
+let currentFont    = 'EB Garamond';
+
+const versions = ["KJV","ESV","NIV","NASB","NLT","YLT","ASV"];
+const versionNames = {
+  KJV:"King James Version", ESV:"English Standard Version",
+  NIV:"New International Version", NASB:"New American Standard Bible",
+  NLT:"New Living Translation", YLT:"Young's Literal Translation",
+  ASV:"American Standard Version"
+};
+
+const FONTS = [
+  {label:'EB Garamond', css:"'EB Garamond', serif"},
+  {label:'Cinzel',      css:"'Cinzel', serif"},
+  {label:'DM Sans',     css:"'DM Sans', sans-serif"},
+  {label:'Serif',       css:"Georgia, serif"},
+  {label:'Monospace',   css:"'Courier New', monospace"},
+];
+
+// Highlight groups (no standalone notes here)
+const GROUPS = [
+  {id:'morning', name:'Morning Devotion', color:'hl-yellow', dot:'#F5D020'},
+  {id:'promises', name:'Promises',        color:'hl-green',  dot:'#3EC97A'},
+  {id:'study',    name:'Study Notes',     color:'hl-blue',   dot:'#4B9CF5'},
+];
+
+// ── Render chapter ────────────────────────────────────────────────────────────
+function renderChapter() {
+  document.getElementById('bookLabel').textContent  = currentBook;
+  document.getElementById('chapterNum').textContent = currentChapter;
+  document.getElementById('topBarTitle').textContent = currentBook + ' · ' + currentChapter;
+
+  const chData = VERSES[currentBook]?.[currentChapter] || [];
+  const container = document.getElementById('chapterText');
+  container.style.fontSize = fontSize + 'px';
+
+  if (paragraphMode) {
+    // Paragraph mode: flowing text
+    let html = '';
+    chData.forEach(vd => {
+      const key = `${currentBook}-${currentChapter}-${vd.v}`;
+      const hlClass = highlights[key] ? ' ' + highlights[key] : '';
+      const selClass = selectedVerses.has(key) ? ' selected' : '';
+      const txt = (redLetters && vd.red)
+        ? `<span class="red-letter">${vd.t}</span>` : vd.t;
+      html += `<span class="verse${hlClass}${selClass}" id="v${vd.v}" onclick="toggleVerse('${key}', ${vd.v})"><sup class="verse-num">${vd.v}</sup>${txt} </span>`;
+    });
+    container.innerHTML = html;
+  } else {
+    // Numbered mode
+    let html = '';
+    chData.forEach(vd => {
+      const key = `${currentBook}-${currentChapter}-${vd.v}`;
+      const hlClass = highlights[key] ? ' ' + highlights[key] : '';
+      const selClass = selectedVerses.has(key) ? ' selected' : '';
+      const txt = (redLetters && vd.red)
+        ? `<span class="red-letter">${vd.t}</span>` : vd.t;
+      html += `<div class="verse${hlClass}${selClass}" style="margin-bottom:6px" id="v${vd.v}" onclick="toggleVerse('${key}', ${vd.v})"><span class="verse-num" style="font-size:11px;vertical-align:baseline;margin-right:5px">${vd.v}</span>${txt}</div>`;
+    });
+    container.innerHTML = html;
+  }
+}
+
+// ── Verse selection ───────────────────────────────────────────────────────────
+function toggleVerse(key, vNum) {
+  if (selectedVerses.has(key)) selectedVerses.delete(key);
+  else selectedVerses.add(key);
+  renderChapter();
+  updateActionPanel();
+}
+
+function updateActionPanel() {
+  const panel = document.getElementById('actionPanel');
+  if (selectedVerses.size > 0) {
+    const refs = [...selectedVerses].map(k => {
+      const parts = k.split('-');
+      return `${parts[0]} ${parts[1]}:${parts[2]}`;
+    }).join(', ');
+    document.getElementById('actionRef').textContent = refs;
+    panel.classList.add('open');
+    // Make sure chrome is visible when panel opens
+    document.getElementById('bottomChrome').classList.remove('hidden');
+  } else {
+    panel.classList.remove('open');
+  }
+}
+
+// ── Chapter nav ───────────────────────────────────────────────────────────────
+function prevChapter() {
+  const books = Object.keys(VERSES);
+  const chapters = Object.keys(VERSES[currentBook] || {}).map(Number).sort((a,b)=>a-b);
+  const idx = chapters.indexOf(currentChapter);
+  if (idx > 0) { currentChapter = chapters[idx-1]; }
+  else {
+    const bi = books.indexOf(currentBook);
+    if (bi > 0) {
+      currentBook = books[bi-1];
+      const chs = Object.keys(VERSES[currentBook]).map(Number).sort((a,b)=>a-b);
+      currentChapter = chs[chs.length-1];
+    }
+  }
+  selectedVerses.clear();
+  document.getElementById('actionPanel').classList.remove('open');
+  renderChapter();
+  document.getElementById('chapterScroll').scrollTop = 0;
+}
+
+function nextChapter() {
+  const books = Object.keys(VERSES);
+  const chapters = Object.keys(VERSES[currentBook] || {}).map(Number).sort((a,b)=>a-b);
+  const idx = chapters.indexOf(currentChapter);
+  if (idx < chapters.length - 1) { currentChapter = chapters[idx+1]; }
+  else {
+    const bi = books.indexOf(currentBook);
+    if (bi < books.length - 1) {
+      currentBook = books[bi+1];
+      const chs = Object.keys(VERSES[currentBook]).map(Number).sort((a,b)=>a-b);
+      currentChapter = chs[0];
+    }
+  }
+  selectedVerses.clear();
+  document.getElementById('actionPanel').classList.remove('open');
+  renderChapter();
+  document.getElementById('chapterScroll').scrollTop = 0;
+}
+
+// ── Drawer ────────────────────────────────────────────────────────────────────
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  renderDrawer();
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  setTimeout(() => { drawerState='books'; drawerBook=null; drawerChapter=null; renderDrawer(); }, 300);
+}
+function drawerGoBack() {
+  if (drawerState === 'verses') { drawerState = 'chapters'; drawerChapter = null; }
+  else if (drawerState === 'chapters') { drawerState = 'books'; drawerBook = null; }
+  renderDrawer();
+}
+
+function renderDrawer() {
+  const list  = document.getElementById('drawerList');
+  const title = document.getElementById('drawerTitle');
+  const back  = document.getElementById('drawerBack');
+
+  list.innerHTML = '';
+
+  if (drawerState === 'books') {
+    title.textContent = 'Books';
+    back.style.display = 'none';
+    Object.keys(VERSES).forEach(book => {
+      const el = document.createElement('div');
+      el.className = 'book-item' + (book === currentBook ? ' active' : '');
+      el.innerHTML = `${book} <span class="book-chevron">›</span>`;
+      el.onclick = () => { drawerBook = book; drawerState = 'chapters'; renderDrawer(); };
+      list.appendChild(el);
+    });
+
+  } else if (drawerState === 'chapters') {
+    title.textContent = drawerBook;
+    back.style.display = '';
+    const chapters = Object.keys(VERSES[drawerBook] || {}).map(Number).sort((a,b)=>a-b);
+    const grid = document.createElement('div');
+    grid.className = 'chapter-grid';
+    chapters.forEach(ch => {
+      const btn = document.createElement('div');
+      btn.className = 'ch-btn' + (drawerBook === currentBook && ch === currentChapter ? ' active' : '');
+      btn.textContent = ch;
+      btn.onclick = () => { drawerChapter = ch; drawerState = 'verses'; renderDrawer(); };
+      grid.appendChild(btn);
+    });
+    list.appendChild(grid);
+
+  } else if (drawerState === 'verses') {
+    title.textContent = drawerBook + ' ' + drawerChapter;
+    back.style.display = '';
+    const vData = VERSES[drawerBook]?.[drawerChapter] || [];
+    vData.forEach(vd => {
+      const el = document.createElement('div');
+      el.className = 'verse-list-item';
+      const words = vd.t.split(' ').slice(0,5).join(' ') + (vd.t.split(' ').length > 5 ? '…' : '');
+      el.innerHTML = `<span class="verse-list-num">${vd.v}</span><span>${words}</span>`;
+      el.onclick = () => {
+        currentBook = drawerBook; currentChapter = drawerChapter;
+        selectedVerses.clear();
+        document.getElementById('actionPanel').classList.remove('open');
+        renderChapter();
+        closeDrawer();
+        setTimeout(() => {
+          const el = document.getElementById('v' + vd.v);
+          if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
+        }, 350);
+      };
+      list.appendChild(el);
+    });
+  }
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+function openSearch() {
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('searchInput').focus(), 280);
+}
+function closeSearch() {
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+}
+function doSearch(q) {
+  const results = document.getElementById('searchResults');
+  if (!q || q.length < 3) {
+    results.innerHTML = '<div style="padding:30px 20px;text-align:center;color:var(--text-muted);font-family:DM Sans,sans-serif;font-size:13px">Type at least 3 characters…</div>';
+    return;
+  }
+  const matches = SEARCH_CORPUS.filter(r => r.text.toLowerCase().includes(q.toLowerCase())).slice(0,20);
+  if (!matches.length) {
+    results.innerHTML = '<div style="padding:30px 20px;text-align:center;color:var(--text-muted);font-family:DM Sans,sans-serif;font-size:13px">No results found</div>';
+    return;
+  }
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  results.innerHTML = matches.map(r => {
+    const hl = r.text.replace(re, '<mark class="search-highlight">$1</mark>');
+    return `<div class="search-result" onclick="gotoVerse('${r.book}',${r.ch},${r.v})">
+      <div class="search-result-ref">${r.book} ${r.ch}:${r.v}</div>
+      <div class="search-result-text">${hl}</div>
+    </div>`;
+  }).join('');
+}
+function gotoVerse(book, ch, v) {
+  currentBook = book; currentChapter = ch;
+  selectedVerses.clear();
+  document.getElementById('actionPanel').classList.remove('open');
+  renderChapter();
+  closeSearch();
+  setTimeout(() => {
+    const el = document.getElementById('v' + v);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 100);
+}
+
+// ── Highlight picker ──────────────────────────────────────────────────────────
+function openHighlight() {
+  const list = document.getElementById('groupList');
+  list.innerHTML = '';
+  GROUPS.forEach(g => {
+    const row = document.createElement('div');
+    row.className = 'group-row';
+    const alreadyIn = [...selectedVerses].some(k => highlights[k] === g.color);
+    row.innerHTML = `
+      <div class="group-dot" style="background:${g.dot}"></div>
+      <span class="group-name">${g.name}</span>
+      <span class="group-check">${alreadyIn ? '✓' : ''}</span>`;
+    row.onclick = () => {
+      if (alreadyIn) {
+        selectedVerses.forEach(k => { if (highlights[k] === g.color) delete highlights[k]; });
+      } else {
+        selectedVerses.forEach(k => { highlights[k] = g.color; });
+      }
+      selectedVerses.clear();
+      document.getElementById('actionPanel').classList.remove('open');
+      document.getElementById('highlightOverlay').classList.remove('open');
+      renderChapter();
+      showToast(alreadyIn ? 'Removed highlight' : `Added to "${g.name}"`);
+    };
+    list.appendChild(row);
+  });
+  document.getElementById('highlightOverlay').classList.add('open');
+}
+function closeHighlight(e) {
+  if (e && e.target !== document.getElementById('highlightOverlay')) return;
+  document.getElementById('highlightOverlay').classList.remove('open');
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function openSettings() {
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+function setTheme(theme) {
+  const app = document.getElementById('app');
+  ['light','dark','sepia'].forEach(t => {
+    document.getElementById('chip-' + t)?.classList.remove('active');
+    app.classList.remove(t);
+  });
+  document.getElementById('chip-' + theme)?.classList.add('active');
+  if (theme !== 'light') app.classList.add(theme);
+}
+function adjustFont(delta) {
+  fontSize = Math.max(13, Math.min(26, fontSize + delta));
+  document.getElementById('fontSizeDisplay').textContent = fontSize + 'px';
+  document.getElementById('chapterText').style.fontSize = fontSize + 'px';
+  document.getElementById('settingsPreview').style.fontSize = fontSize + 'px';
+}
+function toggleParagraphMode() {
+  paragraphMode = !paragraphMode;
+  document.getElementById('paraToggleSetting').classList.toggle('on', paragraphMode);
+  renderChapter();
+}
+function toggleRedLetters() {
+  redLetters = !redLetters;
+  document.getElementById('redLetterToggle').classList.toggle('on', redLetters);
+  renderChapter();
+}
+function cycleVersion() {
+  versionIdx = (versionIdx + 1) % versions.length;
+  const v = versions[versionIdx];
+  document.getElementById('versionBtn').textContent = v;
+  document.getElementById('versionLabel').textContent = versionNames[v];
+  showToast(versionNames[v]);
+}
+
+// ── Font picker ───────────────────────────────────────────────────────────────
+function openFontPicker() {
+  const list = document.getElementById('fontOptionList');
+  list.innerHTML = '';
+  FONTS.forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'font-option' + (f.label === currentFont ? ' selected' : '');
+    row.style.fontFamily = f.css;
+    row.innerHTML = `<span>${f.label}</span><span class="font-option-check">${f.label === currentFont ? '✓' : ''}</span>`;
+    row.onclick = () => {
+      currentFont = f.label;
+      document.getElementById('currentFontLabel').textContent = f.label;
+      document.getElementById('chapterText').style.fontFamily = f.css;
+      document.getElementById('settingsPreview').style.fontFamily = f.css;
+      document.getElementById('fontPickerOverlay').classList.remove('open');
+    };
+    list.appendChild(row);
+  });
+  document.getElementById('fontPickerOverlay').classList.add('open');
+}
+function closeFontPicker(e) {
+  if (e && e.target !== document.getElementById('fontPickerOverlay')) return;
+  document.getElementById('fontPickerOverlay').classList.remove('open');
+}
+
+// ── Copy ──────────────────────────────────────────────────────────────────────
+function copyVerse() {
+  const chData = VERSES[currentBook]?.[currentChapter] || [];
+  const lines = [...selectedVerses].map(k => {
+    const vNum = parseInt(k.split('-')[2]);
+    const vd = chData.find(v => v.v === vNum);
+    return `${currentBook} ${currentChapter}:${vNum} — ${vd?.t || ''}`;
+  });
+  navigator.clipboard?.writeText(lines.join('\n')).catch(()=>{});
+  showToast('Copied to clipboard');
+}
+
+// ── Scroll bar hide/show ──────────────────────────────────────────────────────
+let lastScrollY=0, barsVisible=true, scrollAcc=0, hideTimer=null;
+document.getElementById('chapterScroll').addEventListener('scroll', function() {
+  const sy = this.scrollTop;
+  const atTop = sy <= 5;
+  const atBot = sy + this.clientHeight >= this.scrollHeight - 10;
+  const delta = sy - lastScrollY;
+  lastScrollY = sy;
+  if (atTop || atBot) { showBars(); return; }
+  if ((delta > 0 && scrollAcc < 0) || (delta < 0 && scrollAcc > 0)) scrollAcc = 0;
+  scrollAcc += delta;
+  if (scrollAcc > 60) { scrollAcc=0; hideBars(); }
+  else if (scrollAcc < -40) { scrollAcc=0; showBars(); scheduleHide(); }
+});
+function showBars() {
+  if (hideTimer) clearTimeout(hideTimer);
+  if (barsVisible) return; barsVisible = true;
+  document.getElementById('topBar').classList.remove('hidden');
+  document.getElementById('bottomChrome').classList.remove('hidden');
+}
+function hideBars() {
+  if (hideTimer) clearTimeout(hideTimer);
+  if (!barsVisible) return; barsVisible = false;
+  document.getElementById('topBar').classList.add('hidden');
+  document.getElementById('bottomChrome').classList.add('hidden');
+}
+function scheduleHide() {
+  if (hideTimer) clearTimeout(hideTimer);
+  hideTimer = setTimeout(hideBars, 5000);
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 2200);
+}
+
+// ── Feature demo triggers ─────────────────────────────────────────────────────
+function triggerDemo(feature) {
+  document.querySelectorAll('.feature-item').forEach(f => f.classList.remove('active'));
+  document.getElementById('f-' + feature)?.classList.add('active');
+  if (feature === 'drawer') openDrawer();
+  else if (feature === 'search') {
+    openSearch();
+    setTimeout(() => { document.getElementById('searchInput').value='light'; doSearch('light'); }, 350);
+  }
+  else if (feature === 'highlight') {
+    if (selectedVerses.size === 0) {
+      const key = `${currentBook}-${currentChapter}-1`;
+      selectedVerses.add(key);
+      updateActionPanel();
+      renderChapter();
+    }
+    setTimeout(() => openHighlight(), 300);
+  }
+  else if (feature === 'settings') openSettings();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderChapter();
+renderDrawer();
+</script>
+</body>
+</html>
